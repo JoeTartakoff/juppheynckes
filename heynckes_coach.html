@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heynckes Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a3350;
+    --gold: #c9a84c;
+    --gold-light: #e2c97e;
+    --cream: #f5f0e8;
+    --cream-dim: #e8e0d0;
+    --text-muted: #6b6b6b;
+  }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .container { width: 100%; max-width: 480px; }
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .coach-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--navy); line-height: 1; }
+  .coach-role { font-size: 10px; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+  .date-block { text-align: right; }
+  .date-day { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--navy); line-height: 1; }
+  .date-rest { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+  .card { background: var(--navy); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+  .card-stripe { height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); }
+  .card-inner { padding: 1.5rem; }
+  .session-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; opacity: 0.8; }
+  .quote { font-size: 15px; line-height: 1.8; color: var(--cream); font-weight: 300; font-style: italic; margin-bottom: 1rem; min-height: 80px; transition: opacity 0.3s; }
+  .quote.fade { opacity: 0; }
+  .quote-source { font-size: 11px; color: rgba(201,168,76,0.7); letter-spacing: 0.3px; }
+  .focus-strip { display: flex; align-items: center; gap: 10px; background: rgba(201,168,76,0.12); border: 0.5px solid rgba(201,168,76,0.25); border-radius: 5px; padding: 10px 12px; margin-top: 1.25rem; }
+  .focus-icon { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+  .focus-text { font-size: 12px; color: var(--gold-light); line-height: 1.5; }
+  .btn-next { width: 100%; padding: 11px; background: var(--navy); color: var(--gold-light); border: none; border-radius: 6px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; cursor: pointer; letter-spacing: 0.3px; transition: background 0.2s; }
+  .btn-next:hover { background: var(--navy-mid); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div>
+      <div class="coach-name">Jupp Heynckes</div>
+      <div class="coach-role">Personal Coach</div>
+    </div>
+    <div class="date-block">
+      <div class="date-day" id="date-day">—</div>
+      <div class="date-rest" id="date-rest">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-stripe"></div>
+    <div class="card-inner">
+      <div class="session-label" id="session-label"></div>
+      <div class="quote" id="quote-text"></div>
+      <div class="quote-source" id="quote-source"></div>
+      <div class="focus-strip">
+        <div class="focus-icon"></div>
+        <div class="focus-text" id="focus-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-next" onclick="nextQuote()">다음 코칭 메시지 →</button>
+
+</div>
+
+<script>
+const morningQuotes = [
+  { q:"챔피언은 어제의 자신보다 조금 더 나은 사람이 되는 것으로 시작한다.", s:"2013 UCL 결승 전날 선수단에게", f:"아침 체조 — 몸의 감각에 집중하기" },
+  { q:"규율이 없으면 자유도 없다. 루틴을 지키는 것이 곧 자유다.", s:"바이에른 훈련 세션 중", f:"명상 5분 — 오늘 하루의 의도를 설정하기" },
+  { q:"작은 디테일이 큰 경기를 결정한다. 오늘의 준비가 그것이다.", s:"선수단 미팅에서", f:"준비물 리스트를 서두르지 않고 하나씩" },
+  { q:"몸이 기억해야 한다. 반복이 본능을 만든다.", s:"레알 마드리드 시절 인터뷰", f:"동작 하나하나를 의식적으로 수행하기" },
+  { q:"좋은 아침이 좋은 경기를 만든다. 하루를 네가 설계해라.", s:"시즌 개막 연설", f:"오늘 일정을 머릿속으로 시뮬레이션하기" },
+  { q:"에너지는 관리하는 것이다. 먹는 것에서부터 시작된다.", s:"체력 코치와의 인터뷰", f:"닭가슴살 — 몸에 투자하는 시간" },
+  { q:"팀의 상태는 개인의 상태에서 나온다. 너 자신을 먼저 챙겨라.", s:"주장단 회의에서", f:"몸무게 확인 — 숫자가 아닌 트렌드를 보기" },
+];
+const eveningQuotes = [
+  { q:"오늘 우리가 한 것들이 내일을 만든다. 점검은 승리의 습관이다.", s:"경기 후 라커룸", f:"가계부 — 지출의 흐름을 파악하기" },
+  { q:"피곤함은 훈장이다. 하지만 회복 없는 피곤함은 부상이다.", s:"시즌 막바지 팀 미팅", f:"스트레칭으로 하루를 마무리하기" },
+  { q:"일기를 쓰는 선수가 성장한다. 기록은 거울이다.", s:"젊은 선수 멘토링 세션", f:"오늘의 감사 3가지 — 작은 것도 괜찮다" },
+  { q:"내일을 준비한 자만이 기회가 왔을 때 잡을 수 있다.", s:"UCL 16강 전날", f:"내일 일정 확인 — 10분의 투자" },
+  { q:"챔피언은 경기가 끝난 후에도 디테일을 놓치지 않는다.", s:"전술 분석 세션에서", f:"소모품 체크 — 불편한 상황을 예방하기" },
+  { q:"충전된 팀이 경기에서 이긴다. 기기도, 너도 충전하라.", s:"회복 세션 중", f:"기기 충전 확인 — 내일의 나를 위한 준비" },
+  { q:"하루를 잘 마무리하는 것이 좋은 내일을 만든다.", s:"선수 컨디션 관리 인터뷰", f:"알람 설정 후 폰을 내려놓기" },
+];
+let qIdx = 0;
+function getSession() { const h = new Date().getHours(); return (h>=5&&h<14)?'morning':'evening'; }
+function nextQuote() {
+  const el = document.getElementById('quote-text');
+  el.classList.add('fade');
+  setTimeout(()=>{ qIdx++; renderQuote(); el.classList.remove('fade'); }, 250);
+}
+function renderQuote() {
+  const session = getSession();
+  const pool = session==='morning'?morningQuotes:eveningQuotes;
+  const item = pool[qIdx%pool.length];
+  document.getElementById('quote-text').textContent = '"'+item.q+'"';
+  document.getElementById('quote-source').textContent = '— '+item.s;
+  document.getElementById('focus-text').textContent = item.f;
+  document.getElementById('session-label').textContent = session==='morning'?'— MORNING BRIEFING —':'— EVENING DEBRIEF —';
+}
+function renderDate() {
+  const now=new Date();
+  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('date-day').textContent=String(now.getDate()).padStart(2,'0');
+  document.getElementById('date-rest').textContent=months[now.getMonth()]+' '+now.getFullYear()+' · '+days[now.getDay()];
+}
+renderDate();
+renderQuote();
+</script>
+</body>
+</html>
