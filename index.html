@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heynckes</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #191919;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+  }
+  .text {
+    flex: 1;
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 0.3s;
+    line-height: 1;
+  }
+  .text.fade { opacity: 0; }
+  .text strong {
+    color: #c9a84c;
+    font-weight: 400;
+    margin-right: 6px;
+  }
+  .btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #444;
+    font-size: 16px;
+    padding: 4px;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .btn:hover { color: #c9a84c; }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="text" id="msg">
+    <strong>Jupp Heynckes:</strong><span id="msg-text"></span>
+  </div>
+  <button class="btn" onclick="next()" title="다음">›</button>
+</div>
+
+<script>
+const messages = [
+  // 명언 30개
+  "오늘 우리가 한 것들이 내일을 만든다. 점검은 승리의 습관이다.",
+  "챔피언은 어제의 자신보다 조금 더 나은 사람이 되는 것으로 시작한다.",
+  "규율이 없으면 자유도 없다. 루틴을 지키는 것이 곧 자유다.",
+  "작은 디테일이 큰 경기를 결정한다. 오늘의 준비가 그것이다.",
+  "몸이 기억해야 한다. 반복이 본능을 만든다.",
+  "좋은 아침이 좋은 경기를 만든다. 하루를 네가 설계해라.",
+  "에너지는 관리하는 것이다. 먹는 것에서부터 시작된다.",
+  "팀의 상태는 개인의 상태에서 나온다. 너 자신을 먼저 챙겨라.",
+  "피곤함은 훈장이다. 하지만 회복 없는 피곤함은 부상이다.",
+  "일기를 쓰는 선수가 성장한다. 기록은 거울이다.",
+  "내일을 준비한 자만이 기회가 왔을 때 잡을 수 있다.",
+  "챔피언은 경기가 끝난 후에도 디테일을 놓치지 않는다.",
+  "충전된 팀이 경기에서 이긴다. 기기도, 너도 충전하라.",
+  "하루를 잘 마무리하는 것이 좋은 내일을 만든다.",
+  "두려움은 준비하지 않은 자의 것이다. 준비한 자는 설레어야 한다.",
+  "나는 포기를 가르치지 않는다. 멈추는 것과 쉬는 것은 다르다.",
+  "승리는 경기장에서 결정되지 않는다. 훈련장에서 이미 결정된다.",
+  "위기는 진짜 실력이 드러나는 순간이다. 두려워하지 마라.",
+  "루틴은 감정에 흔들리지 않는 닻이다. 오늘도 닻을 내려라.",
+  "자기 자신과의 약속을 지키는 것이 가장 어렵고 가장 중요하다.",
+  "집중력은 재능이 아니라 훈련이다. 오늘도 집중하라.",
+  "최고는 타고나는 게 아니다. 매일 아침 선택하는 것이다.",
+  "통제할 수 없는 것은 내려놓아라. 통제할 수 있는 것에 전부를 걸어라.",
+  "지금 이 순간에 집중하라. 어제는 지났고 내일은 아직 오지 않았다.",
+  "성장은 불편함 속에 있다. 편안함에 안주하지 마라.",
+  "작은 승리들이 쌓여 큰 우승이 된다. 오늘의 작은 것을 가볍게 보지 마라.",
+  "실패는 끝이 아니다. 더 잘 준비하라는 신호다.",
+  "네가 지쳐있을 때 루틴이 너를 대신 움직인다.",
+  "경기를 이기기 전에 자기 자신을 먼저 이겨라.",
+  "지속하는 자가 결국 이긴다. 오늘 하루도 지속하라.",
+  // 캐주얼 문장 20개
+  "오늘도 화이팅!",
+  "어제는 잘 보냈나?",
+  "오늘 하루도 네 편이야.",
+  "잘 자고 일어났어?",
+  "오늘 뭐 하나만 제대로 해보자.",
+  "지금 이 순간, 잘 하고 있어.",
+  "밥은 먹었어?",
+  "오늘 몸 상태는 어때?",
+  "무너지지 않는 게 아니야. 다시 일어나는 거야.",
+  "작은 거 하나라도 해내면 오늘은 성공이야.",
+  "너 생각보다 훨씬 잘 버티고 있어.",
+  "잠깐 숨 좀 고르고 가자.",
+  "오늘 하루가 쉽지 않았더라도 여기까지 온 거 잘한 거야.",
+  "지금 뭐가 제일 신경 쓰여?",
+  "딱 한 가지만 집중해보자. 뭘로 할래?",
+  "오늘 잘 마무리하면 내일 아침이 달라져.",
+  "완벽하지 않아도 괜찮아. 계속 가는 게 중요해.",
+  "어디 아프거나 피곤하진 않아?",
+  "오늘 하루 수고했어.",
+  "내일도 여기 있을게.",
+];
+
+let idx = Math.floor(Math.random() * messages.length);
+
+function show() {
+  document.getElementById('msg-text').textContent = messages[idx];
+}
+
+function next() {
+  const el = document.getElementById('msg');
+  el.classList.add('fade');
+  setTimeout(() => {
+    idx = (idx + 1) % messages.length;
+    show();
+    el.classList.remove('fade');
+  }, 250);
+}
+
+show();
+</script>
+</body>
+</html>
